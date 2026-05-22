@@ -2,7 +2,7 @@ export const site = {
   title: 'Property Gallery',
   tagline: 'Private listing for qualified buyers & brokers',
   address: '26°56′38″N 80°57′58″E · Lucknow area',
-  price: '₹35 Lakhs',
+  price: '₹37 Lakhs',
   priceNote: 'Negotiable',
   highlights: [
     { label: 'Living area', value: '522 sq ft' },
