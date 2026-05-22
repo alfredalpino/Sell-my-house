@@ -1,0 +1,231 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Gallery from '../components/Gallery.astro';
+import { site, contactPhoneHref } from '../config/site';
+import { getGalleryPhotos } from '../lib/gallery';
+
+const photos = getGalleryPhotos();
+const heroPhoto = photos[0];
+---
+
+<Layout title={site.title} description={site.tagline}>
+  <header class="border-b border-[var(--color-line)] bg-white/80 backdrop-blur-sm">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+          For brokers & buyers
+        </p>
+        <h1 class="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+          {site.title}
+        </h1>
+      </div>
+      <a
+        href="#contact"
+        class="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--color-accent)] px-6 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 active:scale-[0.98]"
+      >
+        Request info
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="relative overflow-hidden bg-stone-900 text-white">
+      {heroPhoto ? (
+        <img
+          src={heroPhoto.src}
+          alt={heroPhoto.alt}
+          class="absolute inset-0 h-full w-full object-cover opacity-70"
+          fetchpriority="high"
+          decoding="async"
+        />
+      ) : (
+        <div class="absolute inset-0 bg-gradient-to-br from-stone-800 to-stone-950" aria-hidden="true"></div>
+      )}
+      <div class="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
+        <p class="max-w-xl text-sm font-medium uppercase tracking-widest text-stone-300">
+          {site.address}
+        </p>
+        <h2 class="mt-4 max-w-2xl font-display text-4xl font-semibold leading-tight sm:text-5xl">
+          {site.price}
+        </h2>
+        <p class="mt-2 text-lg font-medium text-teal-200">{site.priceNote}</p>
+        <p class="mt-6 max-w-xl text-base leading-relaxed text-stone-200">
+          {site.tagline}
+        </p>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a
+            href="#contact"
+            class="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--color-accent)] px-6 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+          >
+            Request info
+          </a>
+          <a
+            href="#gallery"
+            class="inline-flex min-h-11 items-center justify-center rounded-full border border-white/40 bg-white/10 px-6 text-sm font-semibold backdrop-blur transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+          >
+            View gallery ({photos.length})
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-16">
+      <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {site.highlights.map((item) => (
+          <div class="rounded-2xl border border-[var(--color-line)] bg-white px-5 py-4">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+              {item.label}
+            </dt>
+            <dd class="mt-2 font-display text-xl font-semibold">
+              {item.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <p class="mt-10 max-w-3xl text-base leading-relaxed text-[var(--color-muted)]">
+        {site.description}
+      </p>
+      <div class="mt-10 grid gap-4 sm:grid-cols-3">
+        {site.layout.map((floor) => (
+          <article class="rounded-2xl border border-[var(--color-line)] bg-white p-5">
+            <h3 class="font-display text-lg font-semibold text-[var(--color-ink)]">
+              {floor.level}
+            </h3>
+            <ul class="mt-3 space-y-2 text-sm leading-relaxed text-[var(--color-muted)]">
+              {floor.rooms.map((room) => (
+                <li class="flex gap-2">
+                  <span class="text-[var(--color-accent)]" aria-hidden="true">·</span>
+                  <span>{room}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section id="gallery" class="mx-auto max-w-6xl scroll-mt-8 px-6 pb-20">
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 class="font-display text-3xl font-semibold tracking-tight">
+            Gallery
+          </h2>
+          <p class="mt-2 text-sm text-[var(--color-muted)]">
+            {photos.length === 0
+              ? 'Drop images into public/gallery to populate this section.'
+              : `${photos.length} photos · scroll sideways · click to enlarge`}
+          </p>
+        </div>
+      </div>
+      <Gallery photos={photos} />
+    </section>
+
+    <section
+      id="contact"
+      class="scroll-mt-8 border-t border-[var(--color-line)] bg-white"
+      aria-labelledby="contact-heading"
+    >
+      <div class="mx-auto max-w-6xl px-6 py-16">
+        <h2 id="contact-heading" class="font-display text-3xl font-semibold tracking-tight">
+          Contact & location
+        </h2>
+        <p class="mt-2 text-sm text-[var(--color-muted)]">
+          For showings, offers, and broker packages.
+        </p>
+
+        <div class="mt-8 grid gap-8 lg:grid-cols-2">
+          <div class="space-y-6">
+            <div class="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+              <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+                Asking price
+              </p>
+              <p class="mt-2 font-display text-3xl font-semibold text-[var(--color-ink)]">
+                {site.price}
+              </p>
+              <p class="mt-1 text-sm font-medium text-[var(--color-accent)]">{site.priceNote}</p>
+            </div>
+
+            <div class="rounded-2xl border border-[var(--color-line)] p-6">
+              <p class="text-sm font-semibold text-[var(--color-ink)]">{site.contact.name}</p>
+              <p class="mt-1 text-sm text-[var(--color-muted)]">{site.contact.role}</p>
+
+              <div class="mt-6">
+                <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+                  Email
+                </p>
+                <a
+                  class="mt-2 inline-block text-sm font-medium text-[var(--color-accent)] underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-sm"
+                  href={`mailto:${site.contact.email}`}
+                >
+                  {site.contact.email}
+                </a>
+              </div>
+
+              <div class="mt-6">
+                <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
+                  Phone
+                </p>
+                <ul class="mt-2 space-y-2">
+                  {site.contact.phones.map((phone) => (
+                    <li>
+                      <a
+                        class="text-sm font-medium text-[var(--color-accent)] underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-sm"
+                        href={contactPhoneHref(phone)}
+                      >
+                        {phone}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h3 class="font-display text-lg font-semibold text-[var(--color-ink)]">
+                {site.location.label}
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <a
+                  href={site.location.directionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--color-accent)] px-5 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-accent-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 active:scale-[0.98]"
+                >
+                  Get directions
+                </a>
+                <a
+                  href={site.location.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--color-line)] bg-white px-5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 active:scale-[0.98]"
+                >
+                  Open in Maps
+                </a>
+              </div>
+            </div>
+            <div class="overflow-hidden rounded-2xl border border-[var(--color-line)] shadow-sm">
+              <iframe
+                src={site.location.embedSrc}
+                title="Property location on Google Maps"
+                class="aspect-[4/3] h-full min-h-[280px] w-full sm:min-h-[360px] lg:min-h-[420px]"
+                style="border:0"
+                allowfullscreen
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              />
+            </div>
+            <p class="text-xs text-[var(--color-muted)]">
+              Map is interactive — pan, zoom, and explore the neighborhood. Use the buttons above for turn-by-turn directions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--color-line)] px-6 py-8 text-center text-xs text-[var(--color-muted)]">
+    <p>{site.title} · Private listing</p>
+  </footer>
+</Layout>

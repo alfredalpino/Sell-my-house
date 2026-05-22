@@ -1,0 +1,168 @@
+---
+import type { GalleryPhoto } from '../lib/gallery';
+
+interface Props {
+  photos: GalleryPhoto[];
+}
+
+const { photos } = Astro.props;
+---
+
+{photos.length === 0 ? (
+  <div
+    class="rounded-2xl border border-dashed border-[var(--color-line)] bg-white/60 px-8 py-16 text-center"
+    role="status"
+  >
+    <p class="font-display text-xl font-semibold text-[var(--color-ink)]">
+      No photos yet
+    </p>
+    <p class="mt-3 max-w-md mx-auto text-sm leading-relaxed text-[var(--color-muted)]">
+      Add JPG, PNG, or WebP images to <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">public/gallery</code>, then restart the dev server.
+    </p>
+  </div>
+) : (
+  <div class="relative -mx-6 sm:-mx-0">
+    <ul
+      id="gallery-grid"
+      class="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain px-6 pb-1 snap-x snap-mandatory sm:px-0"
+      aria-label="Property photo gallery"
+    >
+    {photos.map((photo, index) => (
+      <li class="w-64 shrink-0 snap-start sm:w-72 md:w-80">
+        <button
+          type="button"
+          class="group relative block w-full overflow-hidden rounded-xl bg-stone-200 text-left ring-[var(--color-accent)] transition-shadow motion-safe:duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 hover:shadow-lg motion-safe:hover:scale-[1.01] active:scale-[0.99]"
+          data-gallery-index={index}
+          aria-label={`View ${photo.alt}`}
+        >
+          <img
+            src={photo.src}
+            alt={photo.alt}
+            width={640}
+            height={480}
+            class="aspect-[4/3] h-auto w-full object-cover motion-safe:transition-transform motion-safe:duration-300 group-hover:scale-[1.03]"
+            loading={index < 6 ? 'eager' : 'lazy'}
+            decoding="async"
+            draggable="false"
+          />
+          <span
+            class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-4 py-3 text-left text-sm font-medium text-white opacity-0 motion-safe:transition-opacity motion-safe:duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+          >
+            {photo.alt}
+          </span>
+        </button>
+      </li>
+    ))}
+    </ul>
+  </div>
+)}
+
+{photos.length > 0 && (
+  <dialog
+    id="lightbox"
+    class="fixed inset-0 z-50 m-0 h-dvh max-h-none w-full max-w-none border-0 bg-black/92 p-0 backdrop:bg-black/80 open:flex open:flex-col"
+    aria-label="Photo viewer"
+  >
+    <div class="flex items-center justify-between gap-4 px-4 py-3 text-white sm:px-6">
+      <p id="lightbox-caption" class="truncate text-sm text-stone-300"></p>
+      <button
+        type="button"
+        id="lightbox-close"
+        class="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-medium text-white transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        aria-label="Close viewer"
+      >
+        Close
+      </button>
+    </div>
+    <div class="relative flex flex-1 items-center justify-center px-4 pb-6 sm:px-12">
+      <button
+        type="button"
+        id="lightbox-prev"
+        class="absolute left-2 top-1/2 z-10 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4"
+        aria-label="Previous photo"
+      >
+        ‹
+      </button>
+      <img
+        id="lightbox-image"
+        class="max-h-[calc(100dvh-8rem)] max-w-full rounded-lg object-contain shadow-2xl"
+        alt=""
+        decoding="async"
+      />
+      <button
+        type="button"
+        id="lightbox-next"
+        class="absolute right-2 top-1/2 z-10 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4"
+        aria-label="Next photo"
+      >
+        ›
+      </button>
+    </div>
+    <p class="pb-4 text-center text-xs text-stone-500" aria-hidden="true">
+      ← → navigate · Esc close
+    </p>
+  </dialog>
+)}
+
+{photos.length > 0 && (
+  <script define:vars={{ photoData: photos.map((p) => ({ alt: p.alt, src: p.src })) }}>
+    const dialog = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-image');
+    const caption = document.getElementById('lightbox-caption');
+    const closeBtn = document.getElementById('lightbox-close');
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    const triggers = document.querySelectorAll('[data-gallery-index]');
+
+    if (!dialog || !img || !caption || !closeBtn || !prevBtn || !nextBtn) {
+      // gallery markup incomplete
+    } else {
+      let current = 0;
+
+      function show(index) {
+        const total = photoData.length;
+        current = ((index % total) + total) % total;
+        const photo = photoData[current];
+        img.src = photo.src;
+        img.alt = photo.alt;
+        caption.textContent = `${current + 1} / ${total} — ${photo.alt}`;
+      }
+
+      function open(index) {
+        show(index);
+        dialog.showModal();
+        document.body.style.overflow = 'hidden';
+      }
+
+      function close() {
+        dialog.close();
+        document.body.style.overflow = '';
+      }
+
+      triggers.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const index = Number(btn.getAttribute('data-gallery-index'));
+          open(index);
+        });
+      });
+
+      closeBtn.addEventListener('click', close);
+      prevBtn.addEventListener('click', () => show(current - 1));
+      nextBtn.addEventListener('click', () => show(current + 1));
+
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) close();
+      });
+
+      dialog.addEventListener('cancel', () => {
+        document.body.style.overflow = '';
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (!dialog.open) return;
+        if (event.key === 'ArrowLeft') show(current - 1);
+        if (event.key === 'ArrowRight') show(current + 1);
+      });
+    }
+  </script>
+)}
